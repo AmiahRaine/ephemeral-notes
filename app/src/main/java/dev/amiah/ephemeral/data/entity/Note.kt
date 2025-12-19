@@ -5,12 +5,12 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.Relation
-import java.time.ZonedDateTime
+import java.time.Instant
 
 @Entity
 data class Note (
-    @PrimaryKey val id: Long,
-    @ColumnInfo(name = "day") val day: ZonedDateTime
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @ColumnInfo(name = "time") val time: Instant
 )
 
 data class NoteWithTasks (

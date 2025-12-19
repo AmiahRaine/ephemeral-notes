@@ -2,31 +2,57 @@ package dev.amiah.ephemeral.data.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
+import androidx.room.Transaction
+import androidx.room.Upsert
 import dev.amiah.ephemeral.data.entity.Note
+import dev.amiah.ephemeral.data.entity.NoteWithTasks
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
+import java.time.Instant
 
 @Dao
 interface NoteDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(vararg notes: Note)
-
-    @Update
-    suspend fun update(vararg notes: Note)
+    @Upsert
+    suspend fun upsert(vararg notes: Note)
 
     @Delete
     suspend fun delete(vararg notes: Note)
 
-    // Where day is today or later
-    //TODO
-    @Query("SELECT * FROM note WHERE day")
-    fun getActiveNotesByDate(): Flow<Note>
+    @Query("SELECT * FROM note WHERE time >= :now ")
+    suspend fun getActiveNotesByDateOnce(now: Instant): List<Note>
+
+    @Query("DELETE FROM note where time < :cutoffTime")
+    suspend fun deleteInactiveNotes(cutoffTime: Instant)
+
+    @Query("SELECT * FROM note WHERE time >= :now ")
+    fun getActiveNotesByDate(now: Instant): Flow<List<Note>>
+
+    @Transaction
+    @Query("SELECT * FROM note WHERE time >= :now ")
+    fun getActiveNotesWithTasksByDate(now: Instant): Flow<List<NoteWithTasks>>
+
+    @Query("SELECT * FROM note WHERE time < :now ")
+    fun getInactiveNotesByDate(now: Instant): Flow<List<Note>>
+
+    @Transaction
+    @Query("SELECT * FROM note WHERE time < :now ")
+    fun getInactiveNotesWithTasksByDate(now: Instant): Flow<List<NoteWithTasks>>
 
     @Query("SELECT * FROM note WHERE id = :id")
-    suspend fun getNoteById(id: Int): Note
+    fun getNoteById(id: Int): Flow<Note>
+
+    @Transaction
+    @Query("SELECT * FROM note WHERE id = :id")
+    fun getNoteWithTasksById(id: Int): Flow<List<NoteWithTasks>>
+
+    @Query("SELECT * FROM note")
+    fun getAllNotes(): Flow<List<Note>>
+
+    @Transaction
+    @Query("SELECT * FROM note")
+    fun getAllNotesWithTasks(): Flow<List<NoteWithTasks>>
 
 }
