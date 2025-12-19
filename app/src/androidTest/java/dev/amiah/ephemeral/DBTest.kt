@@ -13,7 +13,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
-import java.time.ZonedDateTime
+import java.time.Instant
 
 @RunWith(AndroidJUnit4::class)
 class DBTest {
@@ -24,13 +24,13 @@ class DBTest {
     fun createDB() {
         val context = ApplicationProvider.getApplicationContext<Context>();
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build();
-        noteDao = db.noteDao()
+        noteDao = db.noteDao();
     }
 
     @After
     @Throws(IOException::class)
     fun closeDB() {
-        db.close()
+        db.close();
     }
 
     @Test
@@ -38,9 +38,9 @@ class DBTest {
     fun testData() = runBlocking  {
         // Simple output test
 
-        noteDao.insert(Note(id = 0, day = ZonedDateTime.now()))
+        noteDao.upsert(Note(id = 0, time = Instant.now()));
 
-        println(noteDao.getNoteById(0))
+        println(noteDao.getNoteById(0));
 
 
     }
