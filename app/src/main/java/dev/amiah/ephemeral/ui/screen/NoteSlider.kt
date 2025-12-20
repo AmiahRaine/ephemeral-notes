@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Card
@@ -15,8 +14,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Density
@@ -25,6 +22,8 @@ import androidx.compose.ui.util.lerp
 import dev.amiah.ephemeral.data.entity.Task
 import dev.amiah.ephemeral.viewmodel.note.NotesEvent
 import dev.amiah.ephemeral.viewmodel.note.NotesState
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import kotlin.math.absoluteValue
 
 private val partialPageSize = object : PageSize {
@@ -65,7 +64,11 @@ fun NoteSlider(notesState: NotesState?, onEvent: (NotesEvent) -> Unit) {
         ) {
             // Task entries go in this column
             Column(modifier = Modifier.padding(vertical = 5.dp, horizontal = 8.dp)) {
-                Text(text = "I am number $pageNumber.")
+                // Day text at top of note
+                Text(text = "${
+                    notesState?.notes?.get(pageNumber)?.note?.time?.atZone(
+                        ZoneId.systemDefault())?.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
+                }.")
                 notesState?.notes?.get(pageNumber)?.tasks?.forEach { task ->
                     TaskEntry(task, onEvent)
                 }
