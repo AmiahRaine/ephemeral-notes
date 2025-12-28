@@ -19,6 +19,6 @@ import androidx.room.PrimaryKey
 data class Task (
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "parent_note_id") val parentNoteId: Long,
-    @ColumnInfo(name = "is_done") var isDone: Boolean,
-    @ColumnInfo(name = "text") val text: String?
+    @ColumnInfo(name = "is_done") val isDone: Boolean = false,
+    @ColumnInfo(name = "text") val text: String = ""
 )
