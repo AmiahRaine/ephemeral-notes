@@ -1,20 +1,32 @@
 package dev.amiah.ephemeral.ui.screen
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -70,25 +82,62 @@ fun NoteSlider(notesState: NotesState?, onEvent: (NotesEvent) -> Unit) {
                         ZoneId.systemDefault())?.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
                 }.")
                 notesState?.notes?.get(pageNumber)?.tasks?.forEach { task ->
-                    TaskEntry(task, onEvent)
+                    TaskEntry(task, notesState, onEvent)
                 }
+                AddTaskEntryButton(notesState?.notes?.get(pageNumber)?.note?.id, onEvent)
+
 
             }
-            //onEvent(NotesEvent.SaveNote)
         }
     }
 }
 
 @Composable
-fun TaskEntry(task: Task, onEvent: (NotesEvent) -> Unit) {
-
+fun TaskEntry(task: Task, notesState: NotesState?, onEvent: (NotesEvent) -> Unit) {
 
     Row() {
         Checkbox(checked = task.isDone, onCheckedChange = {
-            task.isDone = it;
-            onEvent(NotesEvent.SaveTask(task))
+            onEvent(NotesEvent.SaveTask(task, isDone = it))
         })
 
-        TextField(state = rememberTextFieldState())
+        // Make a box that can be clicked. Holds a Text until clicked then displays a text edit.
+        Box(modifier = Modifier.fillMaxWidth().heightIn(min=69.dp)
+            .padding(PaddingValues(top = 5.dp, bottom = 5.dp, end = 10.dp, start = 3.dp))
+            .background(Color(0.5f, 0.5f, 0.5f))
+            .clickable(onClick = { onEvent(NotesEvent.ChangeCurrentTask(task)) } )
+        ) {
+            // Switch to text field if it is the current task
+            if (notesState?.currentTask?.id == task.id) {
+                val focusRequester = remember { FocusRequester() }
+
+                TextField(value = notesState.currentTask.text,
+                    modifier = Modifier.fillMaxWidth()
+                        .focusRequester(focusRequester)
+                        .onFocusChanged {
+                            // Delete task entry when empty and user is not interacting with it
+                            if (!it.isFocused && !notesState.currentTaskIsNew && notesState.currentTask.text.isEmpty()) {
+                                onEvent(NotesEvent.DeleteTask(task))
+                            }
+                        },
+                    onValueChange = {
+                        onEvent(NotesEvent.ChangeCurrentTask(task.copy(text = it)));
+                        onEvent(NotesEvent.SaveTaskText)
+                    }
+                )
+
+                LaunchedEffect(Unit) { focusRequester.requestFocus() }
+            }
+            else {
+                Text(text = task.text)
+            }
+        }
+
     }
+}
+
+@Composable
+fun AddTaskEntryButton(parentId: Long?, onEvent: (NotesEvent) -> Unit) {
+    Button(onClick = {
+        onEvent(NotesEvent.CreateTask(parentId ?: -1))
+    }) { Text("NEW") }
 }

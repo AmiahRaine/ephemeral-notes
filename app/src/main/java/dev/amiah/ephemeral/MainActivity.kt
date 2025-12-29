@@ -61,8 +61,8 @@ class MainActivity : ComponentActivity() {
                     Column(Modifier.padding(innerPadding)) {
 
                         // This needs its own state
-                        Box(modifier = Modifier.weight(0.25f)){
-                            NoteSlider(state, viewModel::onNoteEvent)
+                        Box(modifier = Modifier.weight(0.25f)) {
+                            //NoteSlider(state, viewModel::onNoteEvent)
                         }
                         // This is the regular one that the state was made for
                         Box(modifier = Modifier.weight(1f)){NoteSlider(state, viewModel::onNoteEvent)}
