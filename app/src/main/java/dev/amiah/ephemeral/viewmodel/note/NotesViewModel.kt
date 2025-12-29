@@ -61,31 +61,6 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
 
             // TASK OPERATIONS
 
-            is NotesEvent.SaveTaskIsDone -> {
-                // Reject task if invalid id.
-                if (event.task.parentNoteId < 1) return
-
-
-                // Finally upsert the new task / changes.
-                viewModelScope.launch(Dispatchers.IO) {
-                    taskDao.upsert(event.task.copy(isDone = event.isDone))
-                }
-            }
-
-            is NotesEvent.SaveTaskText -> {
-                // Saving the text needs to be debounced to prevent unintended behavior
-                // Start by canceling any previous job
-                _saveTextJob?.cancel()
-
-                _saveTextJob = viewModelScope.launch(Dispatchers.IO) {
-                    // Give time for job to be canceled
-                    delay(120)
-                    // If no new job comes in, save the text
-                    taskDao.upsert(event.task)
-                }
-
-            }
-
             is NotesEvent.CreateTask -> {
                 // Do not proceed if invalid parent id
                 if (event.parentId < 1) return
@@ -105,8 +80,37 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
                 }
             }
 
+            is NotesEvent.SaveTaskIsDone -> {
+                // Reject task if invalid id.
+                if (event.task.parentNoteId < 1) return
+
+                // Change isDone and save change
+                viewModelScope.launch(Dispatchers.IO) {
+                    taskDao.upsert(event.task.copy(isDone = event.isDone))
+                }
+            }
+
+            is NotesEvent.SaveTaskText -> {
+                // Saving the text needs to be debounced to prevent unintended behavior
+                // Start by canceling any previous job
+                _saveTextJob?.cancel()
+
+                _saveTextJob = viewModelScope.launch(Dispatchers.IO) {
+                    // Give time for job to be canceled
+                    delay(120)
+                    // If no new job comes in, save the text
+                    taskDao.upsert(event.task)
+                }
+            }
+
+            is NotesEvent.ModifyTaskTextFieldValue -> {
+                _state.update { it.copy(currentTaskText = event.textValue) }
+            }
+
+
             is NotesEvent.SwitchCurrentTask -> {
                 // The current task is the one that is selected. Switching should mark the task as being not new.
+                // Sets text field value to place cursor at end.
                 _state.update {
                     it.copy(
                         currentTask = event.task,
@@ -114,10 +118,6 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
                         currentTaskText = TextFieldValue(event.task.text, TextRange(event.task.text.length))
                     )
                 }
-            }
-
-            is NotesEvent.ModifyTextValue -> {
-                _state.update { it.copy(currentTaskText = event.textValue) }
             }
 
             is NotesEvent.DeleteTask -> {

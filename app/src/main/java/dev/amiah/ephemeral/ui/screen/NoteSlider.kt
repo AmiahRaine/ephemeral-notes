@@ -120,7 +120,7 @@ fun TaskEntry(task: Task, notesState: NotesState?, onEvent: (NotesEvent) -> Unit
                             }
                         },
                     onValueChange = {
-                        onEvent(NotesEvent.ModifyTextValue(it))
+                        onEvent(NotesEvent.ModifyTaskTextFieldValue(it))
                         onEvent(NotesEvent.SaveTaskText(task.copy(text = it.text), it))
                     }
                 )
