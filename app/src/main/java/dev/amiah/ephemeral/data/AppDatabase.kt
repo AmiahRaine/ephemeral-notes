@@ -9,7 +9,7 @@ import dev.amiah.ephemeral.data.entity.LongTermNote
 import dev.amiah.ephemeral.data.entity.Note
 import dev.amiah.ephemeral.data.entity.Task
 
-@Database(entities = [Note::class, Task::class, LongTermNote::class], version = 3)
+@Database(entities = [Note::class, Task::class, LongTermNote::class], version = 4)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao
