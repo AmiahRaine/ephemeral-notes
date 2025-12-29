@@ -7,9 +7,7 @@ import androidx.room.Transaction
 import androidx.room.Upsert
 import dev.amiah.ephemeral.data.entity.Note
 import dev.amiah.ephemeral.data.entity.NoteWithTasks
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.withContext
 import java.time.Instant
 
 @Dao
@@ -31,8 +29,8 @@ interface NoteDao {
     fun getActiveNotesByDate(now: Instant): Flow<List<Note>>
 
     @Transaction
-    @Query("SELECT * FROM note WHERE time >= :now ")
-    fun getActiveNotesWithTasksByDate(now: Instant): Flow<List<NoteWithTasks>>
+    @Query("SELECT * FROM note WHERE time >= :instant ")
+    fun getActiveNotesWithTasksByDate(instant: Instant): Flow<List<NoteWithTasks>>
 
     @Query("SELECT * FROM note WHERE time < :now ")
     fun getInactiveNotesByDate(now: Instant): Flow<List<Note>>
