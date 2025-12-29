@@ -1,5 +1,7 @@
 package dev.amiah.ephemeral.viewmodel.note
 
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.amiah.ephemeral.data.dao.NoteDao
@@ -59,21 +61,14 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
 
             // TASK OPERATIONS
 
-            is NotesEvent.SaveTask -> {
+            is NotesEvent.SaveTaskIsDone -> {
                 // Reject task if invalid id.
                 if (event.task.parentNoteId < 1) return
 
-                // Create a copy to work with.
-                var updated = event.task.copy()
-
-                // If given a value for isDone (not null), set it.
-                event.isDone?.let {
-                    updated = updated.copy(isDone = event.isDone)
-                }
 
                 // Finally upsert the new task / changes.
                 viewModelScope.launch(Dispatchers.IO) {
-                    taskDao.upsert(updated)
+                    taskDao.upsert(event.task.copy(isDone = event.isDone))
                 }
             }
 
@@ -86,7 +81,7 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
                     // Give time for job to be canceled
                     delay(120)
                     // If no new job comes in, save the text
-                    _state.value.currentTask?.let { taskDao.upsert(it) }
+                    taskDao.upsert(event.task)
                 }
 
             }
@@ -100,13 +95,29 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
                     val newId = taskDao.insert(newTask)
                     // Switches selected task to the newly inserted. Marks it new to prevent deletion when empty.
                     // Is new flag gets unset when switching to a different task.
-                    _state.update { it.copy(currentTask = newTask.copy(id = newId), currentTaskIsNew = true) }
+                    _state.update {
+                        it.copy(
+                            currentTask = newTask.copy(id = newId),
+                            currentTaskIsNew = true,
+                            currentTaskText = TextFieldValue()
+                        )
+                    }
                 }
             }
 
-            is NotesEvent.ChangeCurrentTask -> {
+            is NotesEvent.SwitchCurrentTask -> {
                 // The current task is the one that is selected. Switching should mark the task as being not new.
-                _state.update { it.copy(currentTask = event.task, currentTaskIsNew = false) }
+                _state.update {
+                    it.copy(
+                        currentTask = event.task,
+                        currentTaskIsNew = false,
+                        currentTaskText = TextFieldValue(event.task.text, TextRange(event.task.text.length))
+                    )
+                }
+            }
+
+            is NotesEvent.ModifyTextValue -> {
+                _state.update { it.copy(currentTaskText = event.textValue) }
             }
 
             is NotesEvent.DeleteTask -> {

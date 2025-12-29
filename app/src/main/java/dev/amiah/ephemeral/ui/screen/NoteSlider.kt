@@ -97,35 +97,35 @@ fun TaskEntry(task: Task, notesState: NotesState?, onEvent: (NotesEvent) -> Unit
 
     Row() {
         Checkbox(checked = task.isDone, onCheckedChange = {
-            onEvent(NotesEvent.SaveTask(task, isDone = it))
+            onEvent(NotesEvent.SaveTaskIsDone(task, isDone = it))
         })
 
         // Make a box that can be clicked. Holds a Text until clicked then displays a text edit.
         Box(modifier = Modifier.fillMaxWidth().heightIn(min=69.dp)
             .padding(PaddingValues(top = 5.dp, bottom = 5.dp, end = 10.dp, start = 3.dp))
             .background(Color(0.5f, 0.5f, 0.5f))
-            .clickable(onClick = { onEvent(NotesEvent.ChangeCurrentTask(task)) } )
+            .clickable(onClick = { onEvent(NotesEvent.SwitchCurrentTask(task)) } )
         ) {
             // Switch to text field if it is the current task
             if (notesState?.currentTask?.id == task.id) {
                 val focusRequester = remember { FocusRequester() }
 
-                TextField(value = notesState.currentTask.text,
+                TextField(value = notesState.currentTaskText,
                     modifier = Modifier.fillMaxWidth()
                         .focusRequester(focusRequester)
                         .onFocusChanged {
                             // Delete task entry when empty and user is not interacting with it
-                            if (!it.isFocused && !notesState.currentTaskIsNew && notesState.currentTask.text.isEmpty()) {
+                            if (!it.isFocused && !notesState.currentTaskIsNew && notesState.currentTaskText.text.isEmpty()) {
                                 onEvent(NotesEvent.DeleteTask(task))
                             }
                         },
                     onValueChange = {
-                        onEvent(NotesEvent.ChangeCurrentTask(task.copy(text = it)));
-                        onEvent(NotesEvent.SaveTaskText)
+                        onEvent(NotesEvent.ModifyTextValue(it))
+                        onEvent(NotesEvent.SaveTaskText(task.copy(text = it.text), it))
                     }
                 )
 
-                LaunchedEffect(Unit) { focusRequester.requestFocus() }
+                LaunchedEffect(Unit) { focusRequester.requestFocus(); }
             }
             else {
                 Text(text = task.text)
