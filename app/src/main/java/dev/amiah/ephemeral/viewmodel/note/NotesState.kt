@@ -5,5 +5,6 @@ import dev.amiah.ephemeral.data.entity.Task
 
 data class NotesState (
     val notes: List<NoteWithTasks> = emptyList(),
-    val isAdding: Boolean = false
+    val currentTask: Task? = null,
+    val currentTaskIsNew: Boolean = false
 )

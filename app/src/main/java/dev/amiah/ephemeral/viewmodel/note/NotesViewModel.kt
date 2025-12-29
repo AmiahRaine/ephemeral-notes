@@ -5,15 +5,20 @@ import androidx.lifecycle.viewModelScope
 import dev.amiah.ephemeral.data.dao.NoteDao
 import dev.amiah.ephemeral.data.dao.TaskDao
 import dev.amiah.ephemeral.data.entity.Note
+import dev.amiah.ephemeral.data.entity.Task
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.ZoneId
 import java.time.Instant
+import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao) : ViewModel() {
@@ -21,7 +26,8 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
     // Default NotesState.
     private val _state = MutableStateFlow(NotesState())
 
-    private val _notes = noteDao.getActiveNotesWithTasksByDate(Instant.now())
+    // Minus one day since Instant includes time info which we don't care about in this case.
+    private val _notes = noteDao.getActiveNotesWithTasksByDate(Instant.now().minus(1, ChronoUnit.DAYS))
 
     val state = combine(_state, _notes) { state, notes ->
         state.copy(
@@ -29,9 +35,16 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), NotesState())
 
+    // Used to debounce saving the text.
+    private var _saveTextJob: Job? = null;
+
 
     fun onNoteEvent(event: NotesEvent) {
         when (event) {
+
+            // NOTE OPERATIONS
+
+            // TODO: This does nothing. Reconsider if it is needed.
             NotesEvent.SaveNote -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     noteDao.upsert()
@@ -44,12 +57,61 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
                 }
             }
 
-
-            is NotesEvent.DeleteTask -> TODO()
+            // TASK OPERATIONS
 
             is NotesEvent.SaveTask -> {
+                // Reject task if invalid id.
+                if (event.task.parentNoteId < 1) return
+
+                // Create a copy to work with.
+                var updated = event.task.copy()
+
+                // If given a value for isDone (not null), set it.
+                event.isDone?.let {
+                    updated = updated.copy(isDone = event.isDone)
+                }
+
+                // Finally upsert the new task / changes.
                 viewModelScope.launch(Dispatchers.IO) {
-                    taskDao.upsert(event.task)
+                    taskDao.upsert(updated)
+                }
+            }
+
+            is NotesEvent.SaveTaskText -> {
+                // Saving the text needs to be debounced to prevent unintended behavior
+                // Start by canceling any previous job
+                _saveTextJob?.cancel()
+
+                _saveTextJob = viewModelScope.launch(Dispatchers.IO) {
+                    // Give time for job to be canceled
+                    delay(120)
+                    // If no new job comes in, save the text
+                    _state.value.currentTask?.let { taskDao.upsert(it) }
+                }
+
+            }
+
+            is NotesEvent.CreateTask -> {
+                // Do not proceed if invalid parent id
+                if (event.parentId < 1) return
+
+                viewModelScope.launch {
+                    val newTask = Task(parentNoteId = event.parentId)
+                    val newId = taskDao.insert(newTask)
+                    // Switches selected task to the newly inserted. Marks it new to prevent deletion when empty.
+                    // Is new flag gets unset when switching to a different task.
+                    _state.update { it.copy(currentTask = newTask.copy(id = newId), currentTaskIsNew = true) }
+                }
+            }
+
+            is NotesEvent.ChangeCurrentTask -> {
+                // The current task is the one that is selected. Switching should mark the task as being not new.
+                _state.update { it.copy(currentTask = event.task, currentTaskIsNew = false) }
+            }
+
+            is NotesEvent.DeleteTask -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    taskDao.delete(event.task)
                 }
             }
         }
@@ -64,9 +126,11 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
             val remainingDays = maxOf(0, minActiveDays - notes.size)
             // This is the time of the last active note. Use current time if no notes currently exist.
             val startTime: Instant = if (notes.isEmpty()) currentTime else notes.last().time
+            // If no notes exist, we should start from today, otherwise start from tomorrow
+            val startValue = if (notes.isEmpty()) 0 else 1
 
             // Create list of notes
-            val notesList = (1..remainingDays).map { daysToAdd ->
+            val notesList = (startValue..remainingDays).map { daysToAdd ->
                 Note(
                     time = startTime
                         .atZone(ZoneId.systemDefault()) // convert to user time
