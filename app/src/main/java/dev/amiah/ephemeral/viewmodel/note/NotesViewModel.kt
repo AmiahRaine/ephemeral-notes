@@ -174,5 +174,19 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
         }
     }
 
+    /**
+     * Checks if the former task is new and empty, and deletes it if true. Uses a copy
+     * of _state to check.
+     */
+    private fun deleteFormerNewTaskIfEmpty() {
+        val formerState = _state.value.copy()
+        if (formerState.currentTaskIsNew && formerState.currentTaskText.text.isEmpty()
+            && formerState.currentTask != null) {
+            viewModelScope.launch(Dispatchers.IO) {
+                taskDao.delete(formerState.currentTask)
+            }
+        }
+    }
+
 
 }
