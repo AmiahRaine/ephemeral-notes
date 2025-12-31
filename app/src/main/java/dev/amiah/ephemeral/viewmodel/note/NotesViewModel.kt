@@ -109,6 +109,9 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
 
 
             is NotesEvent.SwitchCurrentTask -> {
+                // Fixes bug of empty new text fields persisting after switch
+                deleteFormerNewTaskIfEmpty()
+
                 // The current task is the one that is selected. Switching should mark the task as being not new.
                 // Sets text field value to place cursor at end.
                 _state.update {
