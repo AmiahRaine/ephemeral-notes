@@ -64,6 +64,10 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
             is NotesEvent.CreateTask -> {
                 // Do not proceed if invalid parent id
                 if (event.parentId < 1) return
+ 
+                // Do not create a new task if the current task is still new and empty
+                val currentState = _state.value.copy()
+                if (currentState.currentTaskIsNew && currentState.currentTaskText.text.isEmpty()) return
 
                 viewModelScope.launch {
                     val newTask = Task(parentNoteId = event.parentId)
