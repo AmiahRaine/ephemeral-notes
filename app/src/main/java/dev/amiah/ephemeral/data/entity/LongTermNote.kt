@@ -10,7 +10,7 @@ import java.time.Instant
 @Entity
 data class LongTermNote (
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    @ColumnInfo(name = "day") val day: Instant
+    @ColumnInfo(name = "day") val time: Instant
 )
 
 data class LongTermNoteWithTasks (
