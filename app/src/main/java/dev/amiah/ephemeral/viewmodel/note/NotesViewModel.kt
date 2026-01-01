@@ -113,7 +113,7 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
 
             is NotesEvent.SwitchCurrentTask -> {
                 // Fixes bug of empty new text fields persisting after switch
-                deleteFormerNewTaskIfEmpty()
+                deleteFormerTaskIfEmpty()
 
                 // The current task is the one that is selected. Switching should mark the task as being not new.
                 // Sets text field value to place cursor at end.
@@ -181,12 +181,12 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
     }
 
     /**
-     * Checks if the former task is new and empty, and deletes it if true. Uses a copy
+     * Checks if the former task is empty, and deletes it if true. Uses a copy
      * of _state to check.
      */
-    private fun deleteFormerNewTaskIfEmpty() {
+    private fun deleteFormerTaskIfEmpty() {
         val formerState = _state.value.copy()
-        if (formerState.currentTaskIsNew && formerState.currentTaskText.text.isEmpty()
+        if (formerState.currentTaskText.text.isEmpty()
             && formerState.currentTask != null) {
             viewModelScope.launch(Dispatchers.IO) {
                 taskDao.delete(formerState.currentTask)
