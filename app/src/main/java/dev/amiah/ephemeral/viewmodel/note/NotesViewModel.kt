@@ -8,6 +8,7 @@ import dev.amiah.ephemeral.data.dao.NoteDao
 import dev.amiah.ephemeral.data.dao.TaskDao
 import dev.amiah.ephemeral.data.entity.Note
 import dev.amiah.ephemeral.data.entity.Task
+import dev.amiah.ephemeral.viewmodel.task.TaskState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -65,8 +66,8 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
                 if (event.parentId < 1) return
 
                 // Do not create a new task if the current task is still new and empty
-                val currentState = _state.value.copy()
-                if (currentState.currentTaskIsNew && currentState.currentTaskText.text.isEmpty()) return
+                val currentTaskState = _state.value.taskState.copy()
+                if (currentTaskState.currentTaskIsNew && currentTaskState.currentTaskText.text.isEmpty()) return
 
                 viewModelScope.launch {
                     val newTask = Task(parentNoteId = event.parentId)
@@ -75,9 +76,11 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
                     // Is new flag gets unset when switching to a different task.
                     _state.update {
                         it.copy(
-                            currentTask = newTask.copy(id = newId),
-                            currentTaskIsNew = true,
-                            currentTaskText = TextFieldValue()
+                            taskState = TaskState(
+                                currentTask = newTask.copy(id = newId),
+                                currentTaskIsNew = true,
+                                currentTaskText = TextFieldValue()
+                            )
                         )
                     }
                 }
@@ -107,7 +110,8 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
             }
 
             is NotesEvent.ModifyTaskTextFieldValue -> {
-                _state.update { it.copy(currentTaskText = event.textValue) }
+                val newTaskState = _state.value.taskState.copy(currentTaskText = event.textValue)
+                _state.update { it.copy(taskState = newTaskState) }
             }
 
 
@@ -119,9 +123,11 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
                 // Sets text field value to place cursor at end.
                 _state.update {
                     it.copy(
-                        currentTask = event.task,
-                        currentTaskIsNew = false,
-                        currentTaskText = TextFieldValue(event.task?.text ?: "", TextRange(event.task?.text?.length ?: 0))
+                        taskState = TaskState(
+                            currentTask = event.task,
+                            currentTaskIsNew = false,
+                            currentTaskText = TextFieldValue(event.task?.text ?: "", TextRange(event.task?.text?.length ?: 0))
+                        ),
                     )
                 }
             }
@@ -186,10 +192,10 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
      */
     private fun deleteFormerTaskIfEmpty() {
         val formerState = _state.value.copy()
-        if (formerState.currentTaskText.text.isEmpty()
-            && formerState.currentTask != null) {
+        if (formerState.taskState.currentTaskText.text.isEmpty()
+            && formerState.taskState.currentTask != null) {
             viewModelScope.launch(Dispatchers.IO) {
-                taskDao.delete(formerState.currentTask)
+                taskDao.delete(formerState.taskState.currentTask)
             }
         }
     }
