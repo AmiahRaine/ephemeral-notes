@@ -81,7 +81,7 @@ fun NoteSlider(notesState: NotesState?, onEvent: (NotesEvent) -> Unit) {
                 // Day text at top of note
                 Text(text = "${
                     notesState?.notes?.get(pageNumber)?.note?.time?.atZone(
-                        ZoneId.systemDefault())?.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
+                        ZoneId.systemDefault())?.format(DateTimeFormatter.ofPattern("MMMM d, yyyy"))
                 }.")
                 // Put task entries in a scroller
                 Column(modifier = Modifier
