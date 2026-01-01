@@ -81,8 +81,14 @@ fun NoteSlider(notesState: NotesState?, onEvent: (NotesEvent) -> Unit) {
                     notesState?.notes?.get(pageNumber)?.note?.time?.atZone(
                         ZoneId.systemDefault())?.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
                 }.")
-                notesState?.notes?.get(pageNumber)?.tasks?.forEach { task ->
-                    TaskEntry(task, notesState, onEvent)
+                // Put task entries in a scroller
+                Column(modifier = Modifier
+                    .weight(0.8f)
+                    .verticalScroll(rememberScrollState())
+                ) {
+                    notesState?.notes?.get(pageNumber)?.tasks?.forEach { task ->
+                        TaskEntry(task, notesState, onEvent)
+                    }
                 }
                 AddTaskEntryButton(notesState?.notes?.get(pageNumber)?.note?.id, onEvent)
 
