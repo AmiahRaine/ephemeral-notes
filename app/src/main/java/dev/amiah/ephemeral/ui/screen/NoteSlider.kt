@@ -114,12 +114,12 @@ fun TaskEntry(task: Task, notesState: NotesState?, onEvent: (NotesEvent) -> Unit
             .clickable(onClick = { onEvent(NotesEvent.SwitchCurrentTask(task)) } )
         ) {
             // Switch to text field if it is the current task
-            if (notesState?.taskState?.currentTask?.id == task.id) {
+            if (notesState?.currentTask?.id == task.id) {
                 val focusRequester = remember { FocusRequester() }
                 val scope = rememberCoroutineScope()
                 val isFocused = remember { mutableStateOf(true) }
 
-                TextField(value = notesState.taskState.currentTaskText,
+                TextField(value = notesState.currentTaskText,
                     modifier = Modifier.fillMaxWidth()
                         .focusRequester(focusRequester)
                         .onFocusChanged {
