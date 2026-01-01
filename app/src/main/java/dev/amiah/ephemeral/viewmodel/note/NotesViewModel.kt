@@ -46,10 +46,9 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
 
             // NOTE OPERATIONS
 
-            // TODO: This does nothing. Reconsider if it is needed.
-            NotesEvent.SaveNote -> {
+            is NotesEvent.SaveNote -> {
                 viewModelScope.launch(Dispatchers.IO) {
-                    noteDao.upsert()
+                    noteDao.upsert(event.note)
                 }
             }
 
@@ -64,7 +63,7 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
             is NotesEvent.CreateTask -> {
                 // Do not proceed if invalid parent id
                 if (event.parentId < 1) return
- 
+
                 // Do not create a new task if the current task is still new and empty
                 val currentState = _state.value.copy()
                 if (currentState.currentTaskIsNew && currentState.currentTaskText.text.isEmpty()) return
@@ -168,7 +167,7 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
 
     // Delete notes that have expired.
     fun manageInactiveNotes() {
-        val daysToRetain = 7
+        val daysToRetain = 7 // TODO: Replace with user preference
         val cutoffTime = Instant.now()
             .atZone(ZoneId.systemDefault()) // convert to user time
             .toLocalDate() // remove time info, only date is needed
