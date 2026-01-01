@@ -75,7 +75,9 @@ fun NoteSlider(notesState: NotesState?, onEvent: (NotesEvent) -> Unit) {
 
         ) {
             // Task entries go in this column
-            Column(modifier = Modifier.padding(vertical = 5.dp, horizontal = 8.dp)) {
+            Column(modifier = Modifier
+                .padding(vertical = 5.dp, horizontal = 8.dp)
+            ) {
                 // Day text at top of note
                 Text(text = "${
                     notesState?.notes?.get(pageNumber)?.note?.time?.atZone(
