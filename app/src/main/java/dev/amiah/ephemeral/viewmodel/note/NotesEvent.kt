@@ -13,7 +13,7 @@ sealed interface NotesEvent {
     data class ModifyTaskTextFieldValue(val textValue: TextFieldValue): NotesEvent
 
     data class CreateTask(val parentId: Long): NotesEvent
-    data class SwitchCurrentTask(val task: Task): NotesEvent
+    data class SwitchCurrentTask(val task: Task?): NotesEvent
     data class DeleteTask(val task: Task): NotesEvent
 
 }
