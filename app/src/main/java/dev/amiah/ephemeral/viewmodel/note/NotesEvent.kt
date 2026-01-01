@@ -5,7 +5,7 @@ import dev.amiah.ephemeral.data.entity.Note
 import dev.amiah.ephemeral.data.entity.Task
 
 sealed interface NotesEvent {
-    object SaveNote: NotesEvent
+    data class SaveNote(val note: Note): NotesEvent
     data class DeleteNote(val note: Note): NotesEvent
 
     data class SaveTaskIsDone(val task: Task, val isDone: Boolean): NotesEvent
