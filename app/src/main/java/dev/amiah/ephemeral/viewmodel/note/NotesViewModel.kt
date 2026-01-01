@@ -122,7 +122,7 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
                     it.copy(
                         currentTask = event.task,
                         currentTaskIsNew = false,
-                        currentTaskText = TextFieldValue(event.task.text, TextRange(event.task.text.length))
+                        currentTaskText = TextFieldValue(event.task?.text ?: "", TextRange(event.task?.text?.length ?: 0))
                     )
                 }
             }
