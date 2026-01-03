@@ -40,11 +40,11 @@ interface NoteDao {
     fun getInactiveNotesWithTasksByDate(now: Instant): Flow<List<NoteWithTasks>>
 
     @Query("SELECT * FROM note WHERE id = :id")
-    fun getNoteById(id: Int): Flow<Note>
+    fun getNoteById(id: Long): Flow<Note>
 
     @Transaction
     @Query("SELECT * FROM note WHERE id = :id")
-    fun getNoteWithTasksById(id: Int): Flow<List<NoteWithTasks>>
+    fun getNoteWithTasksById(id: Long): Flow<List<NoteWithTasks>>
 
     @Query("SELECT * FROM note")
     fun getAllNotes(): Flow<List<Note>>

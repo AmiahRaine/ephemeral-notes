@@ -22,9 +22,9 @@ interface TaskDao {
     suspend fun delete(vararg tasks: Task)
 
     @Query("SELECT * FROM task WHERE id = :id")
-    fun get(id: Int): Flow<Task>
+    fun get(id: Long): Flow<Task>
 
     @Query("SELECT * FROM task WHERE parent_note_id = :noteId")
-    fun getAllById(noteId: Int): Flow<List<Task>>
+    fun getAllById(noteId: Long): Flow<List<Task>>
 
 }
