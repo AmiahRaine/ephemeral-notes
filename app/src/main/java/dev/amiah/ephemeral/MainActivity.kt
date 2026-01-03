@@ -10,10 +10,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,7 +24,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import dev.amiah.ephemeral.data.AppDatabase
 import dev.amiah.ephemeral.ui.screen.NoteSlider
+import dev.amiah.ephemeral.ui.screen.ReminderSlider
 import dev.amiah.ephemeral.ui.theme.EphemeralTheme
+import dev.amiah.ephemeral.viewmodel.longtermnote.ReminderViewModel
 import dev.amiah.ephemeral.viewmodel.note.NotesEvent
 import dev.amiah.ephemeral.viewmodel.note.NotesViewModel
 
@@ -34,11 +34,21 @@ class MainActivity : ComponentActivity() {
 
     lateinit var db: AppDatabase;
 
-    private val viewModel by viewModels<NotesViewModel>(
+    private val notesViewModel by viewModels<NotesViewModel>(
         factoryProducer = {
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
                     return NotesViewModel(db.noteDao(), db.taskDao()) as T
+                }
+            }
+        }
+    )
+
+    private val remindersViewModel by viewModels<ReminderViewModel>(
+        factoryProducer = {
+            object : ViewModelProvider.Factory {
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    return ReminderViewModel(db.reminderDao()) as T
                 }
             }
         }
@@ -55,12 +65,13 @@ class MainActivity : ComponentActivity() {
             AppDatabase::class.java, "ephemeral.db"
         ).fallbackToDestructiveMigration().build();
 
-        viewModel.manageActiveNotes()
-        viewModel.manageInactiveNotes()
+        notesViewModel.manageActiveNotes()
+        notesViewModel.manageInactiveNotes()
 
         setContent {
 
-            val state by viewModel.state.collectAsState(null)
+            val notesState by notesViewModel.state.collectAsState(null)
+            val remindersState by remindersViewModel.state.collectAsState(null)
             val focusManager = LocalFocusManager.current
 
             EphemeralTheme {
@@ -70,19 +81,21 @@ class MainActivity : ComponentActivity() {
                             // Make text fields loose focus when clicking off of them
                             focusManager.clearFocus();
                             // Set current task to null, since no text fields are currently selected
-                            viewModel.onNoteEvent(NotesEvent.SwitchCurrentTask(null))
+                            notesViewModel.onNoteEvent(NotesEvent.SwitchCurrentTask(null))
                         }
                     }
                 ) { innerPadding ->
                     Column(Modifier.padding(innerPadding)) {
 
-                        // This needs its own state
+
                         Box(modifier = Modifier.weight(0.25f)) {
-                            TextField(rememberTextFieldState())
-                            //NoteSlider(state, viewModel::onNoteEvent)
+                            ReminderSlider(remindersState, remindersViewModel::onReminderEvent)
                         }
-                        // This is the regular one that the state was made for
-                        Box(modifier = Modifier.weight(1f)){NoteSlider(state, viewModel::onNoteEvent)}
+
+                        Box(modifier = Modifier.weight(1f)) {
+                            NoteSlider(notesState, notesViewModel::onNoteEvent)
+                        }
+
                     }
                 }
             }
