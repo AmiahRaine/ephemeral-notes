@@ -18,6 +18,9 @@ interface ReminderDao {
     suspend fun delete(vararg reminder: Reminder)
 
     @Query("SELECT * FROM reminder WHERE time >= :now ")
+    fun getActiveRemindersByDate(now: Instant): Flow<List<Reminder>>
+
+    @Query("SELECT * FROM reminder WHERE time >= :now ")
     suspend fun getActiveRemindersByDateOnce(now: Instant): List<Reminder>
 
     @Query("DELETE FROM reminder where time < :cutoffTime")
