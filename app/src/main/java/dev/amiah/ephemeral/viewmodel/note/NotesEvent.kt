@@ -9,7 +9,9 @@ sealed interface NotesEvent {
     data class DeleteNote(val note: Note): NotesEvent
 
     data class SaveTaskIsDone(val task: Task, val isDone: Boolean): NotesEvent
-    data class SaveTaskText(val task: Task, val textFieldValue: TextFieldValue): NotesEvent
+    data class SaveTaskText(val task: Task, val textFieldValue: TextFieldValue): NotesEvent {
+        constructor(task: Task, text: String): this(task, TextFieldValue(text = text))
+    }
     data class ModifyTaskTextFieldValue(val textValue: TextFieldValue): NotesEvent
 
     data class CreateTask(val parentId: Long): NotesEvent
