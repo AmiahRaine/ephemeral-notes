@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import dev.amiah.ephemeral.data.entity.Task
-import dev.amiah.ephemeral.viewmodel.note.NotesEvent
+import dev.amiah.ephemeral.viewmodel.note.NoteEvent
 import dev.amiah.ephemeral.viewmodel.note.NotesState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -52,7 +52,7 @@ private val partialPageSize = object : PageSize {
 }
 
 @Composable
-fun NoteSlider(notesState: NotesState?, onEvent: (NotesEvent) -> Unit) {
+fun NoteSlider(notesState: NotesState?, onEvent: (NoteEvent) -> Unit) {
 
     val pagerState = rememberPagerState(pageCount = { notesState?.notes?.size ?: 0 })
 
@@ -101,17 +101,17 @@ fun NoteSlider(notesState: NotesState?, onEvent: (NotesEvent) -> Unit) {
 }
 
 @Composable
-fun TaskEntry(task: Task, notesState: NotesState?, onEvent: (NotesEvent) -> Unit) {
+fun TaskEntry(task: Task, notesState: NotesState?, onEvent: (NoteEvent) -> Unit) {
 
     Row() {
         Checkbox(checked = task.isDone, onCheckedChange = {
-            onEvent(NotesEvent.SaveTaskIsDone(task, isDone = it))
+            onEvent(NoteEvent.SaveTaskIsDone(task, isDone = it))
         })
 
         // Make a box that can be clicked. Holds a Text until clicked then displays a text edit.
         Box(modifier = Modifier.fillMaxWidth().heightIn(min=69.dp)
             .padding(PaddingValues(top = 5.dp, bottom = 5.dp, end = 10.dp, start = 3.dp))
-            .clickable(onClick = { onEvent(NotesEvent.SwitchCurrentTask(task)) } )
+            .clickable(onClick = { onEvent(NoteEvent.SwitchCurrentTask(task)) } )
         ) {
             // Switch to text field if it is the current task
             if (notesState?.currentTask?.id == task.id) {
@@ -128,13 +128,13 @@ fun TaskEntry(task: Task, notesState: NotesState?, onEvent: (NotesEvent) -> Unit
                             scope.launch {
                                 delay(50)
                                 if (!isFocused.value) {
-                                    onEvent(NotesEvent.SwitchCurrentTask(null))
+                                    onEvent(NoteEvent.SwitchCurrentTask(null))
                                 }
                             }
                         },
                     onValueChange = {
-                        onEvent(NotesEvent.ModifyTaskTextFieldValue(it))
-                        onEvent(NotesEvent.SaveTaskText(task.copy(text = it.text), it))
+                        onEvent(NoteEvent.ModifyTaskTextFieldValue(it))
+                        onEvent(NoteEvent.SaveTaskText(task.copy(text = it.text), it))
                     }
                 )
 
@@ -149,8 +149,8 @@ fun TaskEntry(task: Task, notesState: NotesState?, onEvent: (NotesEvent) -> Unit
 }
 
 @Composable
-fun AddTaskEntryButton(parentId: Long?, onEvent: (NotesEvent) -> Unit) {
+fun AddTaskEntryButton(parentId: Long?, onEvent: (NoteEvent) -> Unit) {
     Button(onClick = {
-        onEvent(NotesEvent.CreateTask(parentId ?: -1))
+        onEvent(NoteEvent.CreateTask(parentId ?: -1))
     }) { Text("NEW") }
 }
