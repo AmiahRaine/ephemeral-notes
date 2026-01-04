@@ -26,8 +26,8 @@ import dev.amiah.ephemeral.data.AppDatabase
 import dev.amiah.ephemeral.ui.screen.NoteSlider
 import dev.amiah.ephemeral.ui.screen.ReminderSlider
 import dev.amiah.ephemeral.ui.theme.EphemeralTheme
-import dev.amiah.ephemeral.viewmodel.longtermnote.ReminderViewModel
-import dev.amiah.ephemeral.viewmodel.note.NotesEvent
+import dev.amiah.ephemeral.viewmodel.longtermnote.RemindersViewModel
+import dev.amiah.ephemeral.viewmodel.note.NoteEvent
 import dev.amiah.ephemeral.viewmodel.note.NotesViewModel
 
 class MainActivity : ComponentActivity() {
@@ -44,11 +44,11 @@ class MainActivity : ComponentActivity() {
         }
     )
 
-    private val remindersViewModel by viewModels<ReminderViewModel>(
+    private val remindersViewModel by viewModels<RemindersViewModel>(
         factoryProducer = {
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return ReminderViewModel(db.reminderDao()) as T
+                    return RemindersViewModel(db.reminderDao()) as T
                 }
             }
         }
@@ -81,7 +81,7 @@ class MainActivity : ComponentActivity() {
                             // Make text fields loose focus when clicking off of them
                             focusManager.clearFocus();
                             // Set current task to null, since no text fields are currently selected
-                            notesViewModel.onNoteEvent(NotesEvent.SwitchCurrentTask(null))
+                            notesViewModel.onNoteEvent(NoteEvent.SwitchCurrentTask(null))
                         }
                     }
                 ) { innerPadding ->
