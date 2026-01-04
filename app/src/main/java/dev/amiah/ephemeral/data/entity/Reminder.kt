@@ -9,6 +9,6 @@ import java.time.Instant
 data class Reminder (
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "time") val time: Instant,
-    @ColumnInfo(name = "text") val text: String
+    @ColumnInfo(name = "text") val text: String = ""
 
 )
