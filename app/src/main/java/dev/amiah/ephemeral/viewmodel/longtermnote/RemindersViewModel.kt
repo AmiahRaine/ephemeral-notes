@@ -12,10 +12,10 @@ import kotlinx.coroutines.flow.stateIn
 import java.time.Instant
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class ReminderViewModel(private val reminderDao: ReminderDao) : ViewModel() {
+class RemindersViewModel(private val reminderDao: ReminderDao) : ViewModel() {
 
     // Default ReminderState.
-    private val _state = MutableStateFlow(ReminderState())
+    private val _state = MutableStateFlow(RemindersState())
 
     private val _reminders = reminderDao.getActiveRemindersByDate(Instant.now())
 
@@ -23,7 +23,7 @@ class ReminderViewModel(private val reminderDao: ReminderDao) : ViewModel() {
         state.copy(
             reminders = reminders
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ReminderState())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), RemindersState())
 
     // Used to debounce saving the text.
     private var _saveTextJob: Job? = null;

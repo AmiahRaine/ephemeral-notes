@@ -41,18 +41,18 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
     private var _saveTextJob: Job? = null;
 
 
-    fun onNoteEvent(event: NotesEvent) {
+    fun onNoteEvent(event: NoteEvent) {
         when (event) {
 
             // NOTE OPERATIONS
 
-            is NotesEvent.SaveNote -> {
+            is NoteEvent.SaveNote -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     noteDao.upsert(event.note)
                 }
             }
 
-            is NotesEvent.DeleteNote -> {
+            is NoteEvent.DeleteNote -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     noteDao.delete(event.note)
                 }
@@ -60,7 +60,7 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
 
             // TASK OPERATIONS
 
-            is NotesEvent.CreateTask -> {
+            is NoteEvent.CreateTask -> {
                 // Do not proceed if invalid parent id
                 if (event.parentId < 1) return
 
@@ -83,7 +83,7 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
                 }
             }
 
-            is NotesEvent.SaveTaskIsDone -> {
+            is NoteEvent.SaveTaskIsDone -> {
                 // Reject task if invalid id.
                 if (event.task.parentNoteId < 1) return
 
@@ -93,7 +93,7 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
                 }
             }
 
-            is NotesEvent.SaveTaskText -> {
+            is NoteEvent.SaveTaskText -> {
                 // Saving the text needs to be debounced to prevent unintended behavior
                 // Start by canceling any previous job
                 _saveTextJob?.cancel()
@@ -106,12 +106,12 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
                 }
             }
 
-            is NotesEvent.ModifyTaskTextFieldValue -> {
+            is NoteEvent.ModifyTaskTextFieldValue -> {
                 _state.update { it.copy(currentTaskText = event.textValue) }
             }
 
 
-            is NotesEvent.SwitchCurrentTask -> {
+            is NoteEvent.SwitchCurrentTask -> {
                 // Fixes bug of empty new text fields persisting after switch
                 deleteFormerTaskIfEmpty()
 
@@ -126,7 +126,7 @@ class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao)
                 }
             }
 
-            is NotesEvent.DeleteTask -> {
+            is NoteEvent.DeleteTask -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     taskDao.delete(event.task)
                 }
