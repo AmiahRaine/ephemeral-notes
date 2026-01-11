@@ -8,7 +8,7 @@ import java.time.Instant
 @Entity
 data class Reminder (
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    @ColumnInfo(name = "time") val time: Instant,
+    @ColumnInfo(name = "time") val time: Instant = Instant.MIN,
     @ColumnInfo(name = "text") val text: String = ""
 
 )
