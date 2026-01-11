@@ -3,6 +3,7 @@ package dev.amiah.ephemeral.viewmodel.longtermnote
 import androidx.compose.ui.text.input.TextFieldValue
 import dev.amiah.ephemeral.data.entity.Reminder
 import dev.amiah.ephemeral.data.entity.Task
+import java.time.LocalDateTime
 
 sealed interface ReminderEvent {
 
@@ -14,8 +15,10 @@ sealed interface ReminderEvent {
     }
     data class ModifyReminderTextFieldValue(val textValue: TextFieldValue): ReminderEvent
 
-    object CreateReminder: ReminderEvent
+    data class CreateReminder(val dateTime: LocalDateTime): ReminderEvent
     data class SwitchCurrentTask(val task: Task?): ReminderEvent
     data class DeleteTask(val task: Task): ReminderEvent
+
+    data class SetDateTimeModalVisibility(val show: Boolean): ReminderEvent
 
 }

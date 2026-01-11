@@ -7,5 +7,6 @@ data class RemindersState (
     val reminders: List<Reminder> = emptyList(),
     val currentReminder: Reminder? = null,
     val currentReminderText: TextFieldValue = TextFieldValue(),
-    val currentReminderIsNew: Boolean = false
+    val currentReminderIsNew: Boolean = false,
+    val showDateTimePicker: Boolean = false
 )
