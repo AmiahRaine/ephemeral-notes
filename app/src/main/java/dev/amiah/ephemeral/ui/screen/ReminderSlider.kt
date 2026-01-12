@@ -9,12 +9,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.getSelectedDate
 import androidx.compose.material3.rememberDatePickerState
@@ -71,6 +73,8 @@ fun ReminderSlider(remindersState: RemindersState?, onEvent: (ReminderEvent) -> 
                     remindersState?.reminders?.get(pageNumber)?.time?.atZone(
                         ZoneId.systemDefault())?.format(DateTimeFormatter.ofPattern("MMMM d, yyyy, h:mm a"))
                 }.", modifier = Modifier.clickable {onEvent(ReminderEvent.SetDateTimeModalVisibility(true))} )
+
+                ReminderTextField(remindersState?.reminders?.get(pageNumber), remindersState, onEvent)
             }
             // Otherwise show add new button
             else {
@@ -179,4 +183,25 @@ fun PickDateTimeModal(reminder: Reminder, onEvent: (ReminderEvent) -> Unit) {
             }
         }
     }
+}
+
+
+@Composable
+fun ReminderTextField(reminder: Reminder?, remindersState: RemindersState?, onEvent: (ReminderEvent) -> Unit) {
+    if (reminder == null || remindersState == null) {
+        return
+    }
+
+    // Put + button to initiate writing
+    if (remindersState.currentReminderText.text.isEmpty()) {
+        Button(onClick = {}) { Text("+") }
+    }
+
+    val textFieldValue = rememberTextFieldState()
+
+    TextField(value = remindersState.currentReminderText, onValueChange = {
+        onEvent(ReminderEvent.ModifyReminderTextFieldValue(it))
+        onEvent(ReminderEvent.SaveReminderWithDebounce(reminder.copy(text = it.text)))
+    })
+
 }
