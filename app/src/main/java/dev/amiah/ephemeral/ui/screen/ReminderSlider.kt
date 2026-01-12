@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -22,11 +21,18 @@ import androidx.compose.material3.getSelectedDate
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.window.Dialog
@@ -35,6 +41,8 @@ import dev.amiah.ephemeral.data.entity.Reminder
 import dev.amiah.ephemeral.util.Format
 import dev.amiah.ephemeral.viewmodel.longtermnote.ReminderEvent
 import dev.amiah.ephemeral.viewmodel.longtermnote.RemindersState
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -67,32 +75,36 @@ fun ReminderSlider(remindersState: RemindersState?, onEvent: (ReminderEvent) -> 
                     scaleY = scaleX
                 }
         ) {
-            // If not last page display reminder (last page is for add new button)
-            if (pageNumber + 1 != pagerState.pageCount) {
-                Text(text = "${
-                    remindersState?.reminders?.get(pageNumber)?.time?.atZone(
-                        ZoneId.systemDefault())?.format(DateTimeFormatter.ofPattern("MMMM d, yyyy, h:mm a"))
-                }.", modifier = Modifier.clickable {onEvent(ReminderEvent.SetDateTimeModalVisibility(true))} )
-
-                ReminderTextField(remindersState?.reminders?.get(pageNumber), remindersState, onEvent)
-            }
-            // Otherwise show add new button
-            else {
-                Button( // ADD REMINDER BUTTON
-                    modifier = Modifier.fillMaxSize(),
-                    onClick = {onEvent(ReminderEvent.SetDateTimeModalVisibility(true))}
-                ) {
-                    Text("ADD REMINDER")
-                }
-            }
-
-            // Show modal
-            if (remindersState?.showDateTimePicker == true) {
+            Column(modifier = Modifier
+                .padding(vertical = 5.dp, horizontal = 8.dp)
+            ) {
+                // If not last page display reminder (last page is for add new button)
                 if (pageNumber + 1 != pagerState.pageCount) {
-                    PickDateTimeModal(remindersState.reminders[pageNumber], onEvent)
+                    Text(text = "${
+                        remindersState?.reminders?.get(pageNumber)?.time?.atZone(
+                            ZoneId.systemDefault())?.format(DateTimeFormatter.ofPattern("MMMM d, yyyy, h:mm a"))
+                    }.", modifier = Modifier.clickable {onEvent(ReminderEvent.SetDateTimeModalVisibility(true))} )
+
+                    ReminderTextField(remindersState?.reminders?.get(pageNumber), remindersState, onEvent)
                 }
+                // Otherwise show add new button
                 else {
-                    PickDateTimeModal(Reminder(), onEvent)
+                    Button( // ADD REMINDER BUTTON
+                        modifier = Modifier.fillMaxSize(),
+                        onClick = {onEvent(ReminderEvent.SetDateTimeModalVisibility(true))}
+                    ) {
+                        Text("ADD REMINDER")
+                    }
+                }
+
+                // Show modal
+                if (remindersState?.showDateTimePicker == true) {
+                    if (pageNumber + 1 != pagerState.pageCount) {
+                        PickDateTimeModal(remindersState.reminders[pageNumber], onEvent)
+                    }
+                    else {
+                        PickDateTimeModal(Reminder(), onEvent)
+                    }
                 }
             }
 
@@ -188,20 +200,56 @@ fun PickDateTimeModal(reminder: Reminder, onEvent: (ReminderEvent) -> Unit) {
 
 @Composable
 fun ReminderTextField(reminder: Reminder?, remindersState: RemindersState?, onEvent: (ReminderEvent) -> Unit) {
+    // Exit if no reminder
     if (reminder == null || remindersState == null) {
         return
     }
 
-    // Put + button to initiate writing
-    if (remindersState.currentReminderText.text.isEmpty()) {
-        Button(onClick = {}) { Text("+") }
+    val editMode = remember { mutableStateOf(false) }
+
+    // Put + button to initiate writing if no text
+    if (reminder.text.isEmpty() && !editMode.value) {
+        Button(modifier = Modifier.padding(vertical = 6.dp), onClick = {editMode.value = true}) { Text("+") }
     }
+    // If editing put a text field
+    else if (editMode.value) {
+        val focusRequester = remember { FocusRequester() }
+        val scope = rememberCoroutineScope()
+        val isFocused = remember { mutableStateOf(true) }
 
-    val textFieldValue = rememberTextFieldState()
+        TextField(value = remindersState.currentReminderText, onValueChange = {
+            onEvent(ReminderEvent.SetReminderTextFieldValue(it))
+            onEvent(ReminderEvent.SaveReminderWithDebounce(reminder.copy(text = it.text)))
+        }, modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp)
+            .focusRequester(focusRequester)
+            .onFocusChanged {
+                isFocused.value = it.isFocused
+                scope.launch {
+                    delay(50)
+                    if (!isFocused.value) {
+                        editMode.value = false
+                    }
+                }
+            }
+        )
 
-    TextField(value = remindersState.currentReminderText, onValueChange = {
-        onEvent(ReminderEvent.ModifyReminderTextFieldValue(it))
-        onEvent(ReminderEvent.SaveReminderWithDebounce(reminder.copy(text = it.text)))
-    })
+        LaunchedEffect(Unit) { focusRequester.requestFocus() }
+    }
+    // Otherwise put just a Text
+    else {
+        Text(text = reminder.text, modifier = Modifier
+            .fillMaxWidth()
+            .padding(20.dp)
+            .clickable {
+                onEvent(ReminderEvent.SetReminderTextFieldValue(TextFieldValue(
+                    text = reminder.text,
+                    selection = TextRange(reminder.text.length)
+                )))
+                editMode.value = true
+            }
+        )
+    }
 
 }
