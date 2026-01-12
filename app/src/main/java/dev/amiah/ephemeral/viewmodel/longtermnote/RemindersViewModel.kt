@@ -47,7 +47,7 @@ class RemindersViewModel(private val reminderDao: ReminderDao) : ViewModel() {
             }
 
             is ReminderEvent.DeleteReminder -> {
-                viewModelScope.launch {
+                viewModelScope.launch(Dispatchers.IO) {
                     reminderDao.delete(event.reminder)
                 }
             }
