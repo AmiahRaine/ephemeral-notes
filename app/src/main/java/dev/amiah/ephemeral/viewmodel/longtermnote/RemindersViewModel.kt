@@ -7,6 +7,7 @@ import dev.amiah.ephemeral.data.entity.Reminder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -31,26 +32,51 @@ class RemindersViewModel(private val reminderDao: ReminderDao) : ViewModel() {
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), RemindersState())
 
-    // Used to debounce saving the text.
-    private var _saveTextJob: Job? = null;
+    // Used to debounce saving.
+    private var _debounceSaveJob: Job? = null;
 
     fun onReminderEvent(event: ReminderEvent) {
         when (event) {
+
+            // Create, Delete, Save Reminders
+
             is ReminderEvent.CreateReminder -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     reminderDao.upsert(Reminder(time = ZonedDateTime.of(event.dateTime, ZoneId.systemDefault()).toInstant()))
                 }
             }
-            is ReminderEvent.DeleteReminder -> TODO()
-            is ReminderEvent.DeleteTask -> TODO()
-            is ReminderEvent.ModifyReminderTextFieldValue -> TODO()
+
+            is ReminderEvent.DeleteReminder -> {
+                viewModelScope.launch {
+                    reminderDao.delete(event.reminder)
+                }
+            }
+
             is ReminderEvent.SaveReminder -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     reminderDao.upsert(event.reminder)
                 }
             }
-            is ReminderEvent.SaveReminderText -> TODO()
-            is ReminderEvent.SwitchCurrentTask -> TODO()
+
+            is ReminderEvent.SaveReminderWithDebounce -> {
+                // Saving certain things such as text needs to be debounced to prevent unintended behavior
+                // Start by canceling any previous job
+                _debounceSaveJob?.cancel()
+
+                _debounceSaveJob = viewModelScope.launch(Dispatchers.IO) {
+                    // Give time for job to be canceled
+                    delay(120)
+                    // If no new job comes in, do the save
+                    reminderDao.upsert(event.reminder)
+                }
+            }
+
+            // Alter text, modal state, etc
+
+            is ReminderEvent.ModifyReminderTextFieldValue -> {
+                _state.update { it.copy(currentReminderText = event.textValue) }
+            }
+
             is ReminderEvent.SetDateTimeModalVisibility -> {
                 _state.update { it.copy(showDateTimePicker = event.show) }
             }
