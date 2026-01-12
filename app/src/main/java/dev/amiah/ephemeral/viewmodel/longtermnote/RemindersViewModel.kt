@@ -73,7 +73,7 @@ class RemindersViewModel(private val reminderDao: ReminderDao) : ViewModel() {
 
             // Alter text, modal state, etc
 
-            is ReminderEvent.ModifyReminderTextFieldValue -> {
+            is ReminderEvent.SetReminderTextFieldValue -> {
                 _state.update { it.copy(currentReminderText = event.textValue) }
             }
 
