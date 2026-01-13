@@ -1,4 +1,4 @@
-package dev.amiah.ephemeral.ui.screen
+package dev.amiah.ephemeral.ui.element
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
