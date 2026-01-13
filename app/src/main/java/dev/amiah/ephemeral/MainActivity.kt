@@ -23,8 +23,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import dev.amiah.ephemeral.data.AppDatabase
-import dev.amiah.ephemeral.ui.screen.NoteSlider
-import dev.amiah.ephemeral.ui.screen.ReminderSlider
+import dev.amiah.ephemeral.ui.element.NoteSlider
+import dev.amiah.ephemeral.ui.element.ReminderSlider
 import dev.amiah.ephemeral.ui.theme.EphemeralTheme
 import dev.amiah.ephemeral.viewmodel.longtermnote.RemindersViewModel
 import dev.amiah.ephemeral.viewmodel.note.NoteEvent
