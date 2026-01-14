@@ -14,10 +14,11 @@ import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -30,9 +31,11 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+import dev.amiah.ephemeral.R
 import dev.amiah.ephemeral.data.entity.Task
 import dev.amiah.ephemeral.viewmodel.note.NoteEvent
 import dev.amiah.ephemeral.viewmodel.note.NotesState
@@ -150,7 +153,10 @@ fun TaskEntry(task: Task, notesState: NotesState?, onEvent: (NoteEvent) -> Unit)
 
 @Composable
 fun AddTaskEntryButton(parentId: Long?, onEvent: (NoteEvent) -> Unit) {
-    Button(onClick = {
-        onEvent(NoteEvent.CreateTask(parentId ?: -1))
-    }) { Text("NEW") }
+    IconButton(onClick = {onEvent(NoteEvent.CreateTask(parentId ?: -1))}) {
+        Icon(
+            painterResource(R.drawable.small_plus_icon),
+            contentDescription = "",
+        )
+    }
 }
