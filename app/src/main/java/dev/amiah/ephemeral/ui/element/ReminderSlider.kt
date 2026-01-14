@@ -209,7 +209,12 @@ fun ReminderTextField(reminder: Reminder?, remindersState: RemindersState?, onEv
 
     // Put + button to initiate writing if no text
     if (reminder.text.isEmpty() && !editMode.value) {
-        Button(modifier = Modifier.padding(vertical = 6.dp), onClick = {editMode.value = true}) { Text("+") }
+        IconButton(modifier = Modifier.padding(vertical = 6.dp), onClick = {editMode.value = true}) {
+            Icon(
+                painterResource(R.drawable.small_plus_icon),
+                contentDescription = "",
+            )
+        }
     }
     // If editing put a text field
     else if (editMode.value) {
