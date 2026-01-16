@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import dev.amiah.ephemeral.data.AppDatabase
+import dev.amiah.ephemeral.ui.element.ActionBar
 import dev.amiah.ephemeral.ui.element.NoteSlider
 import dev.amiah.ephemeral.ui.element.ReminderSlider
 import dev.amiah.ephemeral.ui.theme.EphemeralTheme
@@ -87,6 +88,9 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     Column(Modifier.padding(innerPadding)) {
 
+                        Box() {
+                            ActionBar()
+                        }
 
                         Box(modifier = Modifier.weight(0.25f)) {
                             ReminderSlider(remindersState, remindersViewModel::onReminderEvent)
