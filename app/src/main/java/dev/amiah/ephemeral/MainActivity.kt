@@ -28,6 +28,7 @@ import dev.amiah.ephemeral.data.AppDatabase
 import dev.amiah.ephemeral.ui.element.ActionBar
 import dev.amiah.ephemeral.ui.element.NoteSlider
 import dev.amiah.ephemeral.ui.element.ReminderSlider
+import dev.amiah.ephemeral.ui.screen.SettingsScreen
 import dev.amiah.ephemeral.ui.theme.EphemeralTheme
 import dev.amiah.ephemeral.viewmodel.longtermnote.RemindersState
 import dev.amiah.ephemeral.viewmodel.longtermnote.RemindersViewModel
@@ -116,11 +117,9 @@ class MainActivity : ComponentActivity() {
 
                             composable<ViewTasks> {  }
 
-                            composable<Settings> {  }
+                            composable<Settings> { SettingsScreen() }
 
                         }
-
-
 
                     }
                 }
