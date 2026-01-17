@@ -113,7 +113,7 @@ class MainActivity : ComponentActivity() {
 
                             composable<ViewReminders> {  }
 
-                            composable<ViewReminders> {  }
+                            composable<ViewTasks> {  }
 
                             composable<Settings> {  }
 
