@@ -9,6 +9,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import dev.amiah.ephemeral.MainActivity
@@ -24,21 +25,21 @@ fun ActionBar(navController: NavHostController) {
         IconButton(onClick = { navController.navigate(MainActivity.ViewReminders) }) {
             Icon(
                 painterResource(R.drawable.see_reminders),
-                contentDescription = "",
+                contentDescription = stringResource(R.string.cd_view_reminders),
             )
         }
         // See all task notes
         IconButton(onClick = { navController.navigate(MainActivity.ViewTasks) }) {
             Icon(
                 painterResource(R.drawable.see_notes),
-                contentDescription = "",
+                contentDescription = stringResource(R.string.cd_view_notes),
             )
         }
         // Settings
         IconButton(onClick = { navController.navigate(MainActivity.Settings) }) {
             Icon(
                 painterResource(R.drawable.gear),
-                contentDescription = "",
+                contentDescription = stringResource(R.string.cd_settings),
             )
         }
     }
