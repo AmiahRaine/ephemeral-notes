@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Ephemeral</string>
+    <string name="add_reminder">Add Reminder</string>
+    <string name="add_task">Add Task</string>
+    <string name="cd_view_reminders">View Reminders</string>
+    <string name="cd_view_notes">View Notes</string>
+    <string name="cd_settings">Change Settings</string>
+    <string name="cd_change_time">Change Time</string>
 </resources>

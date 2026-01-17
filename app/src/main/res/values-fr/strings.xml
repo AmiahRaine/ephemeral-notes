@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Éphémère</string>
+    <string name="add_reminder">Nouveau Rappel</string>
+    <string name="add_task">Nouvelle Tâche</string>
+    <string name="cd_view_reminders">Voir les rappels</string>
+    <string name="cd_view_notes">Voir les notes</string>
+    <string name="cd_settings">Accéder aux paramètres</string>
+    <string name="cd_change_time">Modifier la date et l\'heure</string>
 </resources>
