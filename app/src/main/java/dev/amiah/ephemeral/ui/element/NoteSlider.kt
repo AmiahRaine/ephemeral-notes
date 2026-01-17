@@ -156,7 +156,7 @@ fun AddTaskEntryButton(parentId: Long?, onEvent: (NoteEvent) -> Unit) {
     IconButton(onClick = {onEvent(NoteEvent.CreateTask(parentId ?: -1))}) {
         Icon(
             painterResource(R.drawable.small_plus_icon),
-            contentDescription = "",
+            contentDescription = stringResource(R.string.add_task),
         )
     }
 }
