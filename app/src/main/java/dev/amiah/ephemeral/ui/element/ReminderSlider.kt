@@ -34,6 +34,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -216,7 +217,7 @@ fun ReminderTextField(reminder: Reminder?, remindersState: RemindersState?, onEv
         IconButton(modifier = Modifier.padding(vertical = 6.dp), onClick = {editMode.value = true}) {
             Icon(
                 painterResource(R.drawable.small_plus_icon),
-                contentDescription = "",
+                contentDescription = stringResource(R.string.add_task),
             )
         }
     }
