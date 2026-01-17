@@ -104,6 +104,7 @@ class MainActivity : ComponentActivity() {
                     Column(Modifier.padding(innerPadding)) {
 
                         NavHost(navController, startDestination = MainScreen) {
+
                             composable<MainScreen> {
                                 MainScreen(
                                     remindersState, remindersViewModel,
