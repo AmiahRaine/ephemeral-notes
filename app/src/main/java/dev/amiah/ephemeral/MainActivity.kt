@@ -138,7 +138,7 @@ fun MainScreen(
     navController: NavHostController
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        Box() {
+        Box {
             ActionBar(navController)
         }
 
