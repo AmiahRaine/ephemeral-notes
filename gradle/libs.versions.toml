@@ -3,21 +3,28 @@ agp = "8.13.2"
 kotlin = "2.2.21"
 coreKtx = "1.17.0"
 junit = "4.13.2"
+junitAndroid = "1.3.0"
+junitKtx = "1.3.0"
 kspVersion = "2.2.21-2.0.4"
-junitVersion = "1.3.0"
+
 espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.0"
 composeBom = "2025.11.01"
 navigationVersion = "2.8.5"
-serializationVersion = "1.6.3"
 roomVersion = "2.8.4"
-junitKtx = "1.3.0"
+datastoreVersion = "1.2.0"
+
+collectionsVersion = "0.4.0"
+serializationVersion = "1.6.3"
+
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitAndroid" }
+androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
+
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -35,8 +42,11 @@ navigation-compose = { module = "androidx.navigation:navigation-compose", versio
 navigation-fragment = { module = "androidx.navigation:navigation-fragment", version.ref = "navigationVersion" }
 navigation-ui = { module = "androidx.navigation:navigation-ui", version.ref = "navigationVersion" }
 navigation-dynamic = { module = "androidx.navigation:navigation-dynamic-features-fragment", version.ref = "navigationVersion" }
-androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
+datastore = { module = "androidx.datastore:datastore", version.ref = "datastoreVersion" }
+
+kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "collectionsVersion" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serializationVersion" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
