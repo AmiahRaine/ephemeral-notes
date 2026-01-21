@@ -2,6 +2,7 @@ package dev.amiah.ephemeral.viewmodel.longtermnote
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.amiah.ephemeral.data.dao.ReminderDao
 import dev.amiah.ephemeral.data.entity.Reminder
 import kotlinx.coroutines.Dispatchers
@@ -17,9 +18,11 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class RemindersViewModel(private val reminderDao: ReminderDao) : ViewModel() {
+@HiltViewModel
+class RemindersViewModel @Inject constructor (private val reminderDao: ReminderDao) : ViewModel() {
 
     // Default ReminderState.
     private val _state = MutableStateFlow(RemindersState())

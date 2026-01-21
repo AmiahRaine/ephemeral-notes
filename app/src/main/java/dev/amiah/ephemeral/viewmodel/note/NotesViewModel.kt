@@ -4,6 +4,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.amiah.ephemeral.data.dao.NoteDao
 import dev.amiah.ephemeral.data.dao.TaskDao
 import dev.amiah.ephemeral.data.entity.Note
@@ -21,9 +22,11 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
+import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class NotesViewModel(private val noteDao: NoteDao, private val taskDao: TaskDao) : ViewModel() {
+@HiltViewModel
+class NotesViewModel @Inject constructor (private val noteDao: NoteDao, private val taskDao: TaskDao) : ViewModel() {
 
     // Default NotesState.
     private val _state = MutableStateFlow(NotesState())
