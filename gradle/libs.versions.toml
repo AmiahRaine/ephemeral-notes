@@ -14,6 +14,7 @@ composeBom = "2025.11.01"
 navigationVersion = "2.8.5"
 roomVersion = "2.8.4"
 datastoreVersion = "1.2.0"
+daggerHiltVersion = "2.57.1"
 
 collectionsVersion = "0.4.0"
 serializationVersion = "1.6.3"
@@ -43,6 +44,8 @@ navigation-fragment = { module = "androidx.navigation:navigation-fragment", vers
 navigation-ui = { module = "androidx.navigation:navigation-ui", version.ref = "navigationVersion" }
 navigation-dynamic = { module = "androidx.navigation:navigation-dynamic-features-fragment", version.ref = "navigationVersion" }
 datastore = { module = "androidx.datastore:datastore", version.ref = "datastoreVersion" }
+dagger-hilt = { module = "com.google.dagger:hilt-android", version.ref = "daggerHiltVersion" }
+dagger-hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "daggerHiltVersion" }
 
 kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "collectionsVersion" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serializationVersion" }
@@ -53,4 +56,5 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+dagger-hilt = {id = "com.google.dagger.hilt.android", version.ref = "daggerHiltVersion" }
 ksp = {id = "com.google.devtools.ksp", version.ref = "kspVersion" }

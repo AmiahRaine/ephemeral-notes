@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.dagger.hilt)
 }
 
 kotlin {
@@ -62,10 +63,12 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation(libs.navigation.dynamic)
     implementation(libs.datastore)
+    implementation(libs.dagger.hilt)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.androidx.junit.ktx)
     ksp(libs.androidx.room.compiler)
+    ksp(libs.dagger.hilt.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
