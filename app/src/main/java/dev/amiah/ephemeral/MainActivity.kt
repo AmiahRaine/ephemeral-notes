@@ -17,14 +17,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.datastore.core.DataStore
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.room.Room
-import dev.amiah.ephemeral.data.AppDatabase
+import dagger.hilt.android.AndroidEntryPoint
+import dev.amiah.ephemeral.data.datastore.UserPreferences
 import dev.amiah.ephemeral.ui.element.ActionBar
 import dev.amiah.ephemeral.ui.element.NoteSlider
 import dev.amiah.ephemeral.ui.element.ReminderSlider
@@ -36,7 +35,10 @@ import dev.amiah.ephemeral.viewmodel.note.NoteEvent
 import dev.amiah.ephemeral.viewmodel.note.NotesState
 import dev.amiah.ephemeral.viewmodel.note.NotesViewModel
 import kotlinx.serialization.Serializable
+import javax.inject.Inject
 
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     @Serializable
@@ -48,38 +50,16 @@ class MainActivity : ComponentActivity() {
     @Serializable
     object Settings
 
-    lateinit var db: AppDatabase
+    private val notesViewModel by viewModels<NotesViewModel>()
 
-    private val notesViewModel by viewModels<NotesViewModel>(
-        factoryProducer = {
-            object : ViewModelProvider.Factory {
-                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return NotesViewModel(db.noteDao(), db.taskDao()) as T
-                }
-            }
-        }
-    )
+    private val remindersViewModel by viewModels<RemindersViewModel>()
 
-    private val remindersViewModel by viewModels<RemindersViewModel>(
-        factoryProducer = {
-            object : ViewModelProvider.Factory {
-                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return RemindersViewModel(db.reminderDao()) as T
-                }
-            }
-        }
-    )
+    @Inject lateinit var userPrefDataStore: DataStore<UserPreferences>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        // TODO: Remove destructive migration. Is only temporary while testing
-        db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java, "ephemeral.db"
-        ).fallbackToDestructiveMigration().build();
 
         notesViewModel.manageActiveNotes()
         notesViewModel.manageInactiveNotes()
@@ -89,6 +69,7 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val notesState by notesViewModel.state.collectAsState(null)
             val remindersState by remindersViewModel.state.collectAsState(null)
+            val userPreferences = userPrefDataStore.data.collectAsState(UserPreferences()).value
             val focusManager = LocalFocusManager.current
 
             EphemeralTheme {
