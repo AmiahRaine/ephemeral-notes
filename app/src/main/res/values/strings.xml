@@ -7,5 +7,7 @@
     <string name="cd_view_notes">View Notes</string>
     <string name="cd_settings">Change Settings</string>
     <string name="cd_change_time">Change Time</string>
+    <string name="cd_expand_menu">Expand Menu</string>
+    <string name="cd_collapse_menu">Collapse Menu</string>
 
 </resources>
