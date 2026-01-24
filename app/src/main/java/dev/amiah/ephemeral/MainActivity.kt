@@ -17,13 +17,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.datastore.core.DataStore
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import dev.amiah.ephemeral.data.datastore.UserPreferences
 import dev.amiah.ephemeral.ui.element.ActionBar
 import dev.amiah.ephemeral.ui.element.NoteSlider
 import dev.amiah.ephemeral.ui.element.ReminderSlider
@@ -34,8 +32,8 @@ import dev.amiah.ephemeral.viewmodel.longtermnote.RemindersViewModel
 import dev.amiah.ephemeral.viewmodel.note.NoteEvent
 import dev.amiah.ephemeral.viewmodel.note.NotesState
 import dev.amiah.ephemeral.viewmodel.note.NotesViewModel
+import dev.amiah.ephemeral.viewmodel.userpreference.UserPreferencesViewModel
 import kotlinx.serialization.Serializable
-import javax.inject.Inject
 
 
 @AndroidEntryPoint
@@ -54,8 +52,7 @@ class MainActivity : ComponentActivity() {
 
     private val remindersViewModel by viewModels<RemindersViewModel>()
 
-    @Inject lateinit var userPrefDataStore: DataStore<UserPreferences>
-
+    private val userPreferencesViewModel by viewModels<UserPreferencesViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,9 +64,9 @@ class MainActivity : ComponentActivity() {
         setContent {
 
             val navController = rememberNavController()
-            val notesState by notesViewModel.state.collectAsState(null)
-            val remindersState by remindersViewModel.state.collectAsState(null)
-            val userPreferences = userPrefDataStore.data.collectAsState(UserPreferences()).value
+            val notesState by notesViewModel.state.collectAsState()
+            val remindersState by remindersViewModel.state.collectAsState()
+            val userPreferencesState by userPreferencesViewModel.state.collectAsState()
             val focusManager = LocalFocusManager.current
 
             EphemeralTheme {
@@ -98,7 +95,12 @@ class MainActivity : ComponentActivity() {
 
                             composable<ViewTasks> {  }
 
-                            composable<Settings> { SettingsScreen() }
+                            composable<Settings> {
+                                SettingsScreen(
+                                userPreferencesState,
+                                userPreferencesViewModel::onUserPreferenceEvent
+                                )
+                            }
 
                         }
 
