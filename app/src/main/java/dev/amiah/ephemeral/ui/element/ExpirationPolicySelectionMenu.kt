@@ -32,7 +32,16 @@ fun ExpirationPolicySelectionMenu(
 ) {
     val expanded = remember { mutableStateOf(false) }
 
-    Surface(modifier = modifier, shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.surfaceBright) {
+    Surface(
+        modifier = modifier,
+        shape = (
+                if (expanded.value)
+                    RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp)
+                else
+                    RoundedCornerShape(15.dp)
+                ),
+        color = MaterialTheme.colorScheme.surfaceContainer
+    ) {
 
         Row(modifier = Modifier.clickable(onClick = {expanded.value = !expanded.value})) {
             Text(
@@ -60,22 +69,27 @@ fun ExpirationPolicySelectionMenu(
                             stringResource(R.string.cd_expand_menu)
                         )
             )
-
         }
-
+        //Popup() TODO: Make custom menu with epic animations lol
         DropdownMenu(
             modifier = Modifier.fillMaxWidth(),
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            shape = RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp),
+
             expanded = expanded.value,
             onDismissRequest = {expanded.value = false}
         ) {
+            // Display all options, excluding the currently selected option
             ExpirationPolicy.entries.forEach {
-                DropdownMenuItem(
-                    text = { Text(text = it.toString()) },
-                    onClick = {
-                        onEvent(UserPreferenceEvent.SetNotesExpirationPolicy(it))
-                        expanded.value = false
-                    }
-                )
+                if (it != userPreferenceState?.userPreferences?.notesExpirationPolicy) {
+                    DropdownMenuItem(
+                        text = { Text(text = it.toString()) },
+                        onClick = {
+                            onEvent(UserPreferenceEvent.SetNotesExpirationPolicy(it))
+                            expanded.value = false
+                        }
+                    )
+                }
             }
 
         }
