@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.amiah.ephemeral.data.dao.NoteDao
 import dev.amiah.ephemeral.data.dao.TaskDao
-import dev.amiah.ephemeral.data.entity.Note
 import dev.amiah.ephemeral.data.entity.Task
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -20,7 +19,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
-import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
@@ -42,7 +40,6 @@ class NotesViewModel @Inject constructor (private val noteDao: NoteDao, private 
 
     // Used to debounce saving the text.
     private var _saveTextJob: Job? = null;
-
 
     fun onNoteEvent(event: NoteEvent) {
         when (event) {
@@ -136,51 +133,6 @@ class NotesViewModel @Inject constructor (private val noteDao: NoteDao, private 
             }
         }
 
-    }
-
-    fun manageActiveNotes() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val minActiveDays = 7 // TODO: Replace with user preference
-            val currentTime = Instant.now() // Save time so it stays consistent across usages
-            val notes = noteDao.getActiveNotesByDateOnce(currentTime)
-            val remainingDays = maxOf(0, minActiveDays - notes.size)
-            // This is the time of the last active note. Use current time if no notes currently exist.
-            val startTime: Instant = if (notes.isEmpty()) currentTime else notes.last().time
-            // If no notes exist, we should start from today, otherwise start from tomorrow
-            val startValue = if (notes.isEmpty()) 0 else 1
-
-            // Create list of notes
-            val notesList = (startValue..remainingDays).map { daysToAdd ->
-                Note(
-                    time = startTime
-                        .atZone(ZoneId.systemDefault()) // convert to user time
-                        .toLocalDate() // remove time info, only date is needed
-                        .plusDays(daysToAdd.toLong()) // increase time to next days
-                        .atStartOfDay(ZoneId.systemDefault()) // convert to zoned date time
-                        .toInstant() // put back to instant
-                )
-            }
-
-            // Add notes to db
-            if (notesList.isNotEmpty()) {
-                noteDao.upsert(*notesList.toTypedArray())
-            }
-        }
-    }
-
-    // Delete notes that have expired.
-    fun manageInactiveNotes() {
-        val daysToRetain = 7 // TODO: Replace with user preference
-        val cutoffTime = Instant.now()
-            .atZone(ZoneId.systemDefault()) // convert to user time
-            .toLocalDate() // remove time info, only date is needed
-            .minusDays(daysToRetain.toLong()) // subtract number of days to keep notes
-            .atStartOfDay(ZoneId.systemDefault()) // convert to zoned date time
-            .toInstant() // put back to instant
-
-        viewModelScope.launch(Dispatchers.IO) {
-            noteDao.deleteInactiveNotes(cutoffTime)
-        }
     }
 
     /**
