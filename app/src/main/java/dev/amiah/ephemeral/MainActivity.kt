@@ -21,7 +21,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
+import dev.amiah.ephemeral.domain.worker.DatabaseManagementWorker
 import dev.amiah.ephemeral.ui.element.ActionBar
 import dev.amiah.ephemeral.ui.element.NoteSlider
 import dev.amiah.ephemeral.ui.element.ReminderSlider
@@ -58,8 +62,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        notesViewModel.manageActiveNotes()
-        notesViewModel.manageInactiveNotes()
+        val databaseManagementWorkRequest = OneTimeWorkRequestBuilder<DatabaseManagementWorker>()
+            .build()
+
+        WorkManager.getInstance(applicationContext).beginUniqueWork(
+            uniqueWorkName = "ephemeral.manage.data",
+            existingWorkPolicy = ExistingWorkPolicy.KEEP,
+            request = databaseManagementWorkRequest
+        )
 
         setContent {
 
