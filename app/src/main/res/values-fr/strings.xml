@@ -9,4 +9,5 @@
     <string name="cd_change_time">Modifier la date et l\'heure</string>
     <string name="cd_expand_menu">Développer le menu</string>
     <string name="cd_collapse_menu">Réduire le menu</string>
+    <string name="nc_reminders">Rappels</string>
 </resources>
