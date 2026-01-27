@@ -1,4 +1,4 @@
-package dev.amiah.ephemeral.viewmodel.longtermnote
+package dev.amiah.ephemeral.viewmodel.reminder
 
 import androidx.compose.ui.text.input.TextFieldValue
 import dev.amiah.ephemeral.data.entity.Reminder

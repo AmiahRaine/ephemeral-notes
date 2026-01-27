@@ -1,4 +1,4 @@
-package dev.amiah.ephemeral.viewmodel.longtermnote
+package dev.amiah.ephemeral.viewmodel.reminder
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
