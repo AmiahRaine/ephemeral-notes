@@ -44,8 +44,8 @@ import androidx.compose.ui.window.DialogProperties
 import dev.amiah.ephemeral.R
 import dev.amiah.ephemeral.data.entity.Reminder
 import dev.amiah.ephemeral.util.Format
-import dev.amiah.ephemeral.viewmodel.longtermnote.ReminderEvent
-import dev.amiah.ephemeral.viewmodel.longtermnote.RemindersState
+import dev.amiah.ephemeral.viewmodel.reminder.ReminderEvent
+import dev.amiah.ephemeral.viewmodel.reminder.RemindersState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.Instant
