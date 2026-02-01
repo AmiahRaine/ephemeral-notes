@@ -1,9 +1,9 @@
-package dev.amiah.ephemeral.domain
+package dev.amiah.ephemeral.domain.manager
 
 import dev.amiah.ephemeral.data.dao.NoteDao
-import dev.amiah.ephemeral.data.dao.ReminderDao
 import dev.amiah.ephemeral.data.dao.TaskDao
 import dev.amiah.ephemeral.data.entity.Note
+import dev.amiah.ephemeral.data.repository.RemindersRepository
 import dev.amiah.ephemeral.data.repository.UserPreferencesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -17,7 +17,7 @@ class DatabaseManager @Inject constructor (
     private val userPreferencesRepository: UserPreferencesRepository,
     private val noteDao: NoteDao,
     private val taskDao: TaskDao,
-    private val reminderDao: ReminderDao
+    private val remindersRepository: RemindersRepository
 ) {
 
     suspend fun manageActiveNotes() = withContext(Dispatchers.IO) {

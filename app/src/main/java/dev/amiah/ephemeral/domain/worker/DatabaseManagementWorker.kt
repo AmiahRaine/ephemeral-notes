@@ -7,7 +7,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import dev.amiah.ephemeral.domain.DatabaseManager
+import dev.amiah.ephemeral.domain.manager.DatabaseManager
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
