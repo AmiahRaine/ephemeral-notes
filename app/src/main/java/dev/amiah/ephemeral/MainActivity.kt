@@ -21,21 +21,19 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
+import dev.amiah.ephemeral.domain.manager.EphemeralNotificationManager
 import dev.amiah.ephemeral.domain.worker.DatabaseManagementWorker
 import dev.amiah.ephemeral.ui.element.ActionBar
 import dev.amiah.ephemeral.ui.element.NoteSlider
 import dev.amiah.ephemeral.ui.element.ReminderSlider
 import dev.amiah.ephemeral.ui.screen.SettingsScreen
 import dev.amiah.ephemeral.ui.theme.EphemeralTheme
-import dev.amiah.ephemeral.viewmodel.longtermnote.RemindersState
-import dev.amiah.ephemeral.viewmodel.longtermnote.RemindersViewModel
 import dev.amiah.ephemeral.viewmodel.note.NoteEvent
 import dev.amiah.ephemeral.viewmodel.note.NotesState
 import dev.amiah.ephemeral.viewmodel.note.NotesViewModel
+import dev.amiah.ephemeral.viewmodel.reminder.RemindersState
+import dev.amiah.ephemeral.viewmodel.reminder.RemindersViewModel
 import dev.amiah.ephemeral.viewmodel.userpreference.UserPreferencesViewModel
 import kotlinx.serialization.Serializable
 
@@ -62,14 +60,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val databaseManagementWorkRequest = OneTimeWorkRequestBuilder<DatabaseManagementWorker>()
-            .build()
+        EphemeralNotificationManager.createNotificationChannels(applicationContext)
 
-        WorkManager.getInstance(applicationContext).beginUniqueWork(
-            uniqueWorkName = "ephemeral.manage.data",
-            existingWorkPolicy = ExistingWorkPolicy.KEEP,
-            request = databaseManagementWorkRequest
-        )
+        // Enqueues a worker to manage database at timed intervals.
+        // This also actives when the app starts and replaces the previous worker.
+        DatabaseManagementWorker.startDatabaseWork(applicationContext)
 
         setContent {
 
